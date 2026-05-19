@@ -1,0 +1,4 @@
+{
+  "buildCommand": "echo 'PWA 앱 - 빌드 필요 없음'",
+  "outputDirectory": "."
+}

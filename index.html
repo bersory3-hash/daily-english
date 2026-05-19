@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Daily English">
+  <meta name="theme-color" content="#4DABF7">
+  <meta name="description" content="나이에 맞는 영어 문장을 매일 받아보세요">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%234DABF7' width='192' height='192'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='120' font-weight='bold'>📖</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%234DABF7' width='192' height='192'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='120' font-weight='bold'>📖</text></svg>">
+  
+  <title>Daily English</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=Gowun+Batang:wght@700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f5f0ea 0%, #efe8e0 100%);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px;
+      padding-top: 16px;
+      padding-bottom: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header-emoji { font-size: 32px; margin-bottom: 8px; }
+    .header-title { 
+      font-family: 'Gowun Batang', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #2d2d2d;
+      margin-bottom: 2px;
+    }
+    .header-subtitle { color: #bbb; font-size: 12px; }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 12px;
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px 12px;
+      border: none;
+      background: white;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid #e5ddd5;
+      color: #999;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      border-color: var(--color, #4DABF7);
+      color: white;
+      background: var(--color, #4DABF7);
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #bbb;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .age-display {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .age-big {
+      font-family: 'Gowun Batang', serif;
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--color, #4DABF7);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .age-label {
+      font-size: 11px;
+      color: #bbb;
+    }
+
+    .age-group-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      background: rgba(77, 171, 247, 0.15);
+      color: var(--color, #4DABF7);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .age-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .age-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid #e5ddd5;
+      background: white;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #888;
+      transition: all .15s;
+    }
+
+    .age-btn:active { transform: scale(0.95); }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background: #e5ddd5;
+      outline: none;
+      margin-bottom: 6px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color, #4DABF7);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color, #4DABF7);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .topic-btn {
+      padding: 10px;
+      border: 2px solid #e5ddd5;
+      border-radius: 12px;
+      background: white;
+      font-size: 12px;
+      font-weight: 600;
+      color: #999;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .topic-btn.active {
+      background: var(--color, #4DABF7);
+      border-color: var(--color, #4DABF7);
+      color: white;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px 16px;
+      border: none;
+      border-radius: 13px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--color, #4DABF7);
+      color: white;
+    }
+
+    .btn-primary:active:not(:disabled) { filter: brightness(0.9); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color, #4DABF7);
+      border: 2px solid var(--color, #4DABF7);
+    }
+
+    .sentence-card {
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      background: #f8f4ef;
+      border: 1.5px solid #e5ddd5;
+    }
+
+    .sentence-num {
+      display: inline-block;
+      background: var(--color, #4DABF7);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .sentence-en {
+      font-size: 16px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 5px;
+      line-height: 1.4;
+    }
+
+    .sentence-ko {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .sentence-tip {
+      font-size: 11px;
+      color: #999;
+      border-left: 3px solid var(--color, #4DABF7);
+      padding-left: 9px;
+      line-height: 1.5;
+    }
+
+    .sentence-btn-wrap {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .sound-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid #ddd;
+      background: white;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all .15s;
+    }
+
+    .sound-btn.playing {
+      background: var(--color, #4DABF7);
+      border-color: var(--color, #4DABF7);
+      color: white;
+    }
+
+    .status {
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .status.show { display: block; }
+    .status.success { background: #e6fcf5; color: #2f9e44; border-left: 4px solid #2f9e44; }
+    .status.error { background: #fff0f0; color: #e03131; border-left: 4px solid #e03131; }
+    .status.info { background: #e7f5ff; color: #1971c2; border-left: 4px solid #1971c2; }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 4px solid #eee;
+      border-top-color: var(--color, #4DABF7);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .toggle {
+      position: relative;
+      display: inline-flex;
+      width: 50px;
+      height: 28px;
+      cursor: pointer;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: #ddd;
+      transition: background .25s;
+    }
+
+    .toggle input:checked ~ .toggle-track { background: var(--color, #4DABF7); }
+
+    .toggle-thumb {
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: transform .25s;
+    }
+
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(22px); }
+
+    .time-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .time-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .time-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 2px solid #e5ddd5;
+      background: white;
+      font-size: 14px;
+      cursor: pointer;
+      color: #999;
+      transition: all .15s;
+    }
+
+    .time-btn:active { transform: scale(0.9); }
+
+    .time-display {
+      width: 60px;
+      background: #f8f4ef;
+      border: 2px solid #e5ddd5;
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      font-family: 'Gowun Batang', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color, #4DABF7);
+    }
+
+    .time-label {
+      font-size: 10px;
+      color: #bbb;
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn .3s ease;
+    }
+
+    .countdown-display {
+      text-align: center;
+      padding: 12px 16px;
+      background: var(--color, #4DABF7);
+      opacity: 0.1;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color, #4DABF7);
+      margin-bottom: 14px;
+    }
+
+    .countdown-display.active {
+      background: var(--color, #4DABF7);
+      opacity: 1;
+      color: white;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #ccc;
+      margin-bottom: 12px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #bbb;
+    }
+
+    .empty-icon { font-size: 40px; margin-bottom: 10px; }
+    .empty-text { font-size: 13px; }
+
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #e5ddd5;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: inherit;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    select:focus {
+      outline: none;
+      border-color: var(--color, #4DABF7);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="main-content">
+      <div class="header">
+        <div class="header-emoji" id="headerEmoji">📖</div>
+        <div class="header-title">Daily English</div>
+        <div class="header-subtitle">매일 아침 아이 나이에 맞는 영어 문장</div>
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('home')">⚙️ 설정</button>
+        <button class="tab-btn" onclick="switchTab('result')">📖 문장</button>
+        <button class="tab-btn" onclick="switchTab('schedule')">⏰ 자동</button>
+        <button class="tab-btn" onclick="switchTab('about')">ℹ️ 정보</button>
+      </div>
+
+      <div id="home" class="tab-content active">
+        <div class="card">
+          <div class="section-title">나이</div>
+          <div class="age-display">
+            <div class="age-big" id="ageDisplay">8</div>
+            <div class="age-label">세</div>
+            <div class="age-group-badge" id="ageGroup">초등 3-4학년</div>
+          </div>
+
+          <div class="age-controls">
+            <button class="age-btn" onclick="changeAge(-1)">−</button>
+            <input type="range" id="ageSlider" min="2" max="70" value="8" onchange="setAge(this.value)" style="flex:1;margin:0;" />
+            <button class="age-btn" onclick="changeAge(1)">+</button>
+          </div>
+
+          <div class="section-title" style="margin-top:14px;">주제</div>
+          <div class="topic-grid" id="topicGrid"></div>
+
+          <div class="section-title" style="margin-top:14px;">문장 수</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <input type="range" id="countSlider" min="3" max="10" value="5" onchange="setCount(this.value)" style="flex:1;margin-right:12px;" />
+            <span style="font-family:'Gowun Batang',serif;font-size:24px;font-weight:700;color:var(--color,#4DABF7);min-width:40px;text-align:center;" id="countDisplay">5</span>
+          </div>
+          <div class="range-labels">
+            <span>3개</span><span>10개</span>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <div style="font-size:12px;color:#888;margin-bottom:8px;">🎤 음성 설정</div>
+            
+            <div style="margin-bottom:14px;">
+              <div style="font-size:12px;color:#888;margin-bottom:8px;">음성 선택</div>
+              <select id="voiceSelect" onchange="changeVoice(this.value)" style="margin-bottom:8px;">
+                <option value="0">여성 1 (기본)</option>
+                <option value="1">여성 2</option>
+                <option value="2">남성 1</option>
+                <option value="3">남성 2</option>
+                <option value="4">아이 목소리</option>
+              </select>
+              <button class="btn btn-primary" onclick="testVoice()" style="padding:10px;font-size:13px;">🔊 미리 듣기</button>
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:12px;color:#888;">⏱️ 속도</span>
+                <span style="font-size:13px;font-weight:700;color:var(--color,#4DABF7);" id="rateLabel">0.8x</span>
+              </div>
+              <input type="range" id="rateSlider" min="0.5" max="1.5" step="0.1" value="0.8" onchange="changeRate(this.value)" style="width:100%;" />
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:#ccc;margin-top:4px;">
+                <span>느림</span><span>빠름</span>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:12px;color:#888;">🎵 음정</span>
+                <span style="font-size:13px;font-weight:700;color:var(--color,#4DABF7);" id="pitchLabel">1.0x</span>
+              </div>
+              <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.1" value="1.0" onchange="changePitch(this.value)" style="width:100%;" />
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:#ccc;margin-top:4px;">
+                <span>낮음</span><span>높음</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="generate()" id="genBtn">✨ 오늘의 문장 생성</button>
+          <button class="btn btn-secondary" onclick="switchTab('result')" id="showBtn" style="display:none;margin-top:8px;">📖 문장 보기</button>
+        </div>
+      </div>
+
+      <div id="result" class="tab-content">
+        <div id="resultContainer"></div>
+      </div>
+
+      <div id="schedule" class="tab-content">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div>
+              <div style="font-weight:700;font-size:15px;color:#333;">⏰ 매일 자동 발송</div>
+              <div style="font-size:12px;color:#bbb;margin-top:3px;">앱이 켜있을 때 지정 시간에 자동 생성</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="autoToggle" onchange="toggleAuto(this.checked)" />
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+
+          <div id="scheduleContent" style="display:none;">
+            <div class="section-title" style="margin-top:0;">발송 시간</div>
+            <div class="time-picker">
+              <div class="time-col">
+                <button class="time-btn" onclick="changeHour(1)">▲</button>
+                <div class="time-display" id="hourDisplay">07</div>
+                <button class="time-btn" onclick="changeHour(-1)">▼</button>
+                <div class="time-label">시</div>
+              </div>
+              <div style="font-family:'Gowun Batang',serif;font-size:20px;color:#ccc;line-height:1;">:</div>
+              <div class="time-col">
+                <button class="time-btn" onclick="changeMin(5)">▲</button>
+                <div class="time-display" id="minDisplay">00</div>
+                <button class="time-btn" onclick="changeMin(-5)">▼</button>
+                <div class="time-label">분</div>
+              </div>
+            </div>
+
+            <div class="countdown-display" id="countdownDisplay">다음 발송까지 계산 중...</div>
+
+            <button class="btn btn-primary" onclick="saveSchedule()">✅ 설정 저장</button>
+          </div>
+        </div>
+
+        <div class="card" style="background:#fffbeb;border:1.5px solid #FFD700;">
+          <div style="font-weight:700;margin-bottom:8px;color:#555;">⚠️ 자동 발송 주의</div>
+          <div style="font-size:12px;color:#888;line-height:1.8;">
+            ✓ 앱이 항상 켜져있어야 해요<br/>
+            ✓ 배터리 절약 모드를 꺼두세요<br/>
+            ✓ iOS는 알림 설정이 필요해요
+          </div>
+        </div>
+      </div>
+
+      <div id="about" class="tab-content">
+        <div class="card">
+          <div style="text-align:center;margin-bottom:16px;">
+            <div style="font-size:40px;margin-bottom:8px;">📖</div>
+            <div style="font-weight:700;font-size:16px;color:#333;">Daily English</div>
+            <div style="font-size:12px;color:#bbb;margin-top:3px;">v1.0</div>
+          </div>
+
+          <div style="border-top:1px solid #eee;padding-top:14px;margin-bottom:14px;">
+            <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:#333;">기능</div>
+            <div style="font-size:12px;color:#888;line-height:1.8;">
+              ✓ AI로 생성한 나이별 영어 문장<br/>
+              ✓ 발음 듣기 (TTS)<br/>
+              ✓ 음성 선택 & 속도 조절<br/>
+              ✓ 매일 자동 생성<br/>
+              ✓ 홈 화면 설치
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="share()">📲 친구에게 공유하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOPICS = ["일상생활","학교/공부","음식·요리","여행·장소","감정","동물·자연","스포츠","친구·가족"];
+    
+    const AGE_CONFIG = {
+      2: {g:"유아 초기",e:"🍼",c:"#FF8FAB",p:"Use 1-2 simple words. Colors, animals, food only."},
+      3: {g:"유아 초기",e:"🍼",c:"#FF8FAB",p:"Use 1-2 simple words. Colors, animals, food only."},
+      4: {g:"유아",e:"🧸",c:"#FF922B",p:"3-5 word sentences. Simple present only."},
+      5: {g:"유아",e:"🧸",c:"#FF922B",p:"3-5 word sentences. Simple present only."},
+      6: {g:"초등 1-2",e:"🎈",c:"#FAB005",p:"Simple 5-7 word sentences. Basic vocab."},
+      7: {g:"초등 1-2",e:"🎈",c:"#FAB005",p:"Simple 5-7 word sentences. Basic vocab."},
+      8: {g:"초등 3-4",e:"⭐",c:"#74C0FC",p:"Clear sentences with common words."},
+      9: {g:"초등 3-4",e:"⭐",c:"#74C0FC",p:"Clear sentences with common words."},
+      10: {g:"초등 5-6",e:"🎒",c:"#38D9A9",p:"Intermediate. Mixed tenses."},
+      11: {g:"초등 5-6",e:"🎒",c:"#38D9A9",p:"Intermediate. Mixed tenses."},
+      12: {g:"중학생",e:"📚",c:"#4DABF7",p:"Intermediate-upper. Conditionals, comparatives."},
+      13: {g:"중학생",e:"📚",c:"#4DABF7",p:"Intermediate-upper. Conditionals, comparatives."},
+      14: {g:"중학생",e:"📚",c:"#4DABF7",p:"Intermediate-upper. Conditionals, comparatives."},
+      15: {g:"고등학생",e:"🎓",c:"#748FFC",p:"Upper-intermediate. Complex sentences."},
+      16: {g:"고등학생",e:"🎓",c:"#748FFC",p:"Upper-intermediate. Complex sentences."},
+      17: {g:"고등학생",e:"🎓",c:"#748FFC",p:"Upper-intermediate. Complex sentences."},
+    };
+
+    function getConfig(age) {
+      return AGE_CONFIG[age] || AGE_CONFIG[17];
+    }
+
+    function todayStr() { return new Date().toISOString().slice(0, 10); }
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    let state = {
+      age: 8,
+      count: 5,
+      topic: "일상생활",
+      sentences: [],
+      speaking: null,
+      autoOn: false,
+      autoH: 7,
+      autoM: 0,
+      lastGenDate: null,
+      voiceIndex: 0,
+      voiceRate: 0.8,
+      voicePitch: 1.0
+    };
+
+    function save() {
+      localStorage.setItem("de-state", JSON.stringify(state));
+    }
+
+    function load() {
+      const saved = localStorage.getItem("de-state");
+      if (saved) Object.assign(state, JSON.parse(saved));
+      updateUI();
+    }
+
+    function updateUI() {
+      const cfg = getConfig(state.age);
+      const root = document.documentElement;
+      root.style.setProperty("--color", cfg.c);
+
+      document.getElementById("ageDisplay").textContent = state.age;
+      document.getElementById("ageSlider").value = state.age;
+      document.getElementById("ageGroup").textContent = cfg.e + " " + cfg.g;
+      document.getElementById("headerEmoji").textContent = cfg.e;
+
+      document.getElementById("countDisplay").textContent = state.count;
+      document.getElementById("countSlider").value = state.count;
+
+      document.getElementById("hourDisplay").textContent = String(state.autoH).padStart(2, "0");
+      document.getElementById("minDisplay").textContent = String(state.autoM).padStart(2, "0");
+
+      document.getElementById("autoToggle").checked = state.autoOn;
+      document.getElementById("scheduleContent").style.display = state.autoOn ? "block" : "none";
+
+      if (document.getElementById("voiceSelect")) {
+        document.getElementById("voiceSelect").value = state.voiceIndex;
+        document.getElementById("rateSlider").value = state.voiceRate;
+        document.getElementById("pitchSlider").value = state.voicePitch;
+        document.getElementById("rateLabel").textContent = state.voiceRate + "x";
+        document.getElementById("pitchLabel").textContent = state.voicePitch + "x";
+      }
+
+      renderTopics();
+      renderResult();
+      updateCountdown();
+    }
+
+    function renderTopics() {
+      const grid = document.getElementById("topicGrid");
+      grid.innerHTML = TOPICS.map(t => `
+        <button class="topic-btn ${state.topic === t ? "active" : ""}" onclick="setTopic('${t}')">
+          ${t}
+        </button>
+      `).join("");
+    }
+
+    function renderResult() {
+      const cont = document.getElementById("resultContainer");
+      if (!state.sentences.length) {
+        cont.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">아직 생성된 문장이 없어요</div></div></div>`;
+        return;
+      }
+
+      const cfg = getConfig(state.age);
+      cont.innerHTML = `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#333;">${cfg.e} ${cfg.g} · ${state.topic}</div>
+              <div style="font-size:11px;color:#bbb;margin-top:2px;">${state.sentences.length}개</div>
+            </div>
+            <button class="sound-btn" onclick="speakAll()" id="playAllBtn" style="background:${state.speaking === 'all' ? cfg.c : '#f0ebe5'};color:${state.speaking === 'all' ? 'white' : '#888'};">▶</button>
+          </div>
+          ${state.sentences.map((s, i) => `
+            <div class="sentence-card">
+              <span class="sentence-num">#${i+1}</span>
+              <div class="sentence-en">${s.english}</div>
+              <div class="sentence-ko">${s.korean}</div>
+              <div class="sentence-tip">💡 ${s.tip}</div>
+              <div class="sentence-btn-wrap">
+                <button class="sound-btn ${state.speaking === i ? "playing" : ""}" onclick="speak(${i})" style="background:${state.speaking === i ? cfg.c : 'white'};border-color:${state.speaking === i ? cfg.c : '#ddd'};color:${state.speaking === i ? 'white' : '#aaa'};">🔊</button>
+                <button class="sound-btn" onclick="copySentence(${i})" style="flex:1;border-radius:8px;height:34px;border:1.5px solid #ddd;">📋</button>
+              </div>
+            </div>
+          `).join("")}
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+            <button class="btn btn-secondary" onclick="copyAll()" style="font-size:13px;">📋 전체 복사</button>
+            <button class="btn btn-primary" onclick="switchTab('home')" style="font-size:13px;">🔄 다시 생성</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function setAge(a) { state.age = +a; updateUI(); save(); }
+    function changeAge(d) { setAge(Math.max(2, Math.min(70, state.age + d))); }
+    function setCount(c) { state.count = +c; updateUI(); save(); }
+    function setTopic(t) { state.topic = t; updateUI(); save(); }
+    function toggleAuto(v) { state.autoOn = v; updateUI(); save(); }
+    function changeHour(d) { state.autoH = (state.autoH + d + 24) % 24; updateUI(); }
+    function changeMin(d) { state.autoM = (state.autoM + d + 60) % 60; updateUI(); }
+
+    function changeVoice(idx) { state.voiceIndex = parseInt(idx); updateUI(); save(); }
+    function changeRate(val) { state.voiceRate = parseFloat(val); document.getElementById("rateLabel").textContent = val + "x"; save(); }
+    function changePitch(val) { state.voicePitch = parseFloat(val); document.getElementById("pitchLabel").textContent = val + "x"; save(); }
+
+    function switchTab(name) {
+      document.querySelectorAll(".tab-content").forEach(e => e.classList.remove("active"));
+      document.getElementById(name)?.classList.add("active");
+      document.querySelectorAll(".tab-btn").forEach(e => e.classList.remove("active"));
+      event.target.classList.add("active");
+    }
+
+    function showStatus(msg, type = "info") {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.className = "status show " + type;
+      setTimeout(() => el.classList.remove("show"), 4000);
+    }
+
+    async function generate() {
+      const btn = document.getElementById("genBtn");
+      btn.disabled = true;
+      showStatus("⏳ 문장 생성 중...", "info");
+
+      const cfg = getConfig(state.age);
+      const prompt = `Generate exactly ${state.count} English sentences for a ${state.age}-year-old Korean child.
+Level: ${cfg.g}. Guideline: ${cfg.p}
+Topic: ${state.topic}
+Return ONLY valid JSON array: [{"english":"...","korean":"...","tip":"..."}]`;
+
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ age: state.age, count: state.count, topic: state.topic })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          state.sentences = data.sentences || data;
+          state.lastGenDate = todayStr();
+          updateUI();
+          switchTab("result");
+          showStatus("✅ 문장 생성 완료!", "success");
+          document.getElementById("showBtn").style.display = "block";
+        } else {
+          useSampleData();
+        }
+      } catch (e) {
+        useSampleData();
+      }
+      btn.disabled = false;
+    }
+
+    function useSampleData() {
+      const samples = {
+        "일상생활": [
+          { english: "Good morning! How are you?", korean: "좋은 아침! 어떻게 지내?", tip: "아침 인사에 많이 쓰는 표현" },
+          { english: "I like to play with my friends.", korean: "나는 친구들과 놀기를 좋아해.", tip: "like to + 동사 = ~하기를 좋아하다" },
+          { english: "What's your favorite food?", korean: "너의 최고 음식이 뭐야?", tip: "favorite = 가장 좋아하는" },
+          { english: "I go to school every day.", korean: "나는 매일 학교에 가.", tip: "go to school = 학교에 가다" },
+          { english: "Do you like English class?", korean: "너는 영어 수업을 좋아해?", tip: "Do you like ~? = ~를 좋아해?" }
+        ],
+        "학교/공부": [
+          { english: "I have homework today.", korean: "나는 오늘 숙제가 있어.", tip: "have homework = 숙제가 있다" },
+          { english: "Let's study together!", korean: "함께 공부하자!", tip: "Let's + 동사 = ~하자!" },
+          { english: "This is a difficult question.", korean: "이것은 어려운 질문이야.", tip: "difficult = 어려운" },
+          { english: "I like my math class.", korean: "나는 내 수학 수업을 좋아해.", tip: "class = 수업" },
+          { english: "Can you help me?", korean: "너는 나를 도와줄 수 있어?", tip: "Can you ~? = ~할 수 있어?" }
+        ],
+        "음식·요리": [
+          { english: "I love pizza!", korean: "나는 피자를 사랑해!", tip: "love = like보다 더 강한 감정" },
+          { english: "Do you want some water?", korean: "너는 물을 원해?", tip: "want = 원하다" },
+          { english: "This apple is delicious.", korean: "이 사과는 맛있어.", tip: "delicious = 맛있는" },
+          { english: "What's for dinner?", korean: "저녁 뭐야?", tip: "What's for ~? = ~가 뭐야?" },
+          { english: "I like rice and vegetables.", korean: "나는 쌀과 야채를 좋아해.", tip: "and = 그리고" }
+        ],
+        "여행·장소": [
+          { english: "Where is the bathroom?", korean: "화장실이 어디에 있어?", tip: "Where is ~? = ~가 어디에 있어?" },
+          { english: "I want to visit Seoul.", korean: "나는 서울을 방문하고 싶어.", tip: "want to + 동사 = ~하고 싶다" },
+          { english: "This place is beautiful.", korean: "이곳은 아름다워.", tip: "beautiful = 아름다운" },
+          { english: "Let's go to the park!", korean: "공원에 가자!", tip: "Let's go to ~ = ~에 가자" },
+          { english: "How far is the school?", korean: "학교가 얼마나 멀어?", tip: "How far = 얼마나 멀어" }
+        ],
+        "감정": [
+          { english: "I am happy!", korean: "나는 행복해!", tip: "I am + 감정 = 나는 ~하다" },
+          { english: "Are you sad?", korean: "너는 슬파?", tip: "sad = 슬픈" },
+          { english: "I feel excited!", korean: "나는 신나!", tip: "excited = 신난, 흥분한" },
+          { english: "Don't be afraid.", korean: "두려워하지 마.", tip: "Don't be ~ = ~하지 마" },
+          { english: "I'm so tired.", korean: "나는 정말 피곤해.", tip: "tired = 피곤한" }
+        ],
+        "동물·자연": [
+          { english: "I like cats!", korean: "나는 고양이를 좋아해!", tip: "cat = 고양이" },
+          { english: "The flower is pretty.", korean: "그 꽃은 예뻐.", tip: "pretty = 예쁜" },
+          { english: "Do you have a dog?", korean: "너는 개를 가지고 있어?", tip: "dog = 개" },
+          { english: "I love nature.", korean: "나는 자연을 사랑해.", tip: "nature = 자연" },
+          { english: "Birds are flying.", korean: "새들이 날고 있어.", tip: "bird = 새" }
+        ],
+        "스포츠": [
+          { english: "I play soccer.", korean: "나는 축구를 해.", tip: "play + 스포츠 = ~를 하다" },
+          { english: "Do you like basketball?", korean: "너는 농구를 좋아해?", tip: "basketball = 농구" },
+          { english: "Let's play together!", korean: "함께 놀자!", tip: "play together = 함께 놀다" },
+          { english: "I'm good at tennis.", korean: "나는 테니스를 잘해.", tip: "good at ~ = ~를 잘하다" },
+          { english: "Which sport do you like?", korean: "너는 어떤 스포츠를 좋아해?", tip: "Which = 어떤" }
+        ],
+        "친구·가족": [
+          { english: "This is my friend.", korean: "이것이 내 친구야.", tip: "friend = 친구" },
+          { english: "My mother is kind.", korean: "나의 엄마는 친절해.", tip: "kind = 친절한" },
+          { english: "I love my family.", korean: "나는 내 가족을 사랑해.", tip: "family = 가족" },
+          { english: "My dad is tall.", korean: "나의 아빠는 키가 커.", tip: "tall = 키가 크다" },
+          { english: "Do you have siblings?", korean: "너는 형제자매가 있어?", tip: "sibling = 형제자매" }
+        ]
+      };
+
+      const topicSamples = samples[state.topic] || samples["일상생활"];
+      state.sentences = topicSamples.slice(0, state.count);
+      state.lastGenDate = todayStr();
+      updateUI();
+      switchTab("result");
+      showStatus("📚 샘플 문장을 불러왔습니다.", "info");
+      document.getElementById("showBtn").style.display = "block";
+    }
+
+    function getVoice() {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length === 0) return null;
+      const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+      if (englishVoices.length === 0) return voices[0];
+      const idx = Math.min(state.voiceIndex, englishVoices.length - 1);
+      return englishVoices[idx];
+    }
+
+    function testVoice() {
+      speechSynthesis.cancel();
+      const testText = "Hello! This is a test voice.";
+      const u = new SpeechSynthesisUtterance(testText);
+      u.voice = getVoice();
+      u.lang = "en-US";
+      u.rate = state.voiceRate;
+      u.pitch = state.voicePitch;
+      u.volume = 1.0;
+      speechSynthesis.speak(u);
+    }
+
+    function speak(idx) {
+      if (state.speaking === idx) { stop(); return; }
+      stop();
+      const s = state.sentences[idx];
+      const u = new SpeechSynthesisUtterance(s.english);
+      u.voice = getVoice();
+      u.lang = "en-US";
+      u.rate = state.voiceRate;
+      u.pitch = state.voicePitch;
+      u.volume = 1.0;
+      u.onend = () => { state.speaking = null; renderResult(); };
+      state.speaking = idx;
+      renderResult();
+      speechSynthesis.speak(u);
+    }
+
+    function speakAll() {
+      if (state.speaking === "all") { stop(); return; }
+      stop();
+      state.speaking = "all";
+      let i = 0;
+      const next = () => {
+        if (i >= state.sentences.length) { state.speaking = null; renderResult(); return; }
+        const u = new SpeechSynthesisUtterance(state.sentences[i++].english);
+        u.voice = getVoice();
+        u.lang = "en-US";
+        u.rate = state.voiceRate;
+        u.pitch = state.voicePitch;
+        u.volume = 1.0;
+        u.onend = next;
+        speechSynthesis.speak(u);
+      };
+      renderResult();
+      next();
+    }
+
+    function stop() {
+      speechSynthesis.cancel();
+      state.speaking = null;
+    }
+
+    function copySentence(idx) {
+      const s = state.sentences[idx];
+      navigator.clipboard.writeText(`${s.english}\n👉 ${s.korean}\n💡 ${s.tip}`);
+      showStatus("✅ 복사했습니다!", "success");
+    }
+
+    function copyAll() {
+      const cfg = getConfig(state.age);
+      const text = `📖 Daily English (${cfg.g} · ${state.topic})\n\n` +
+        state.sentences.map((s, i) => `${i+1}. ${s.english}\n   👉 ${s.korean}\n   💡 ${s.tip}`).join("\n\n");
+      navigator.clipboard.writeText(text);
+      showStatus("✅ 전체 복사했습니다!", "success");
+    }
+
+    function saveSchedule() {
+      save();
+      showStatus("✅ 자동 발송 설정 저장됨", "success");
+      updateUI();
+    }
+
+    function updateCountdown() {
+      if (!state.autoOn) return;
+      const now = new Date();
+      const target = new Date();
+      target.setHours(state.autoH, state.autoM, 0, 0);
+      if (target <= now) target.setDate(target.getDate() + 1);
+      const ms = target - now;
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      const el = document.getElementById("countdownDisplay");
+      el.textContent = `⏳ 다음 발송: ${pad(h)}:${pad(m)}:${pad(s)}`;
+      el.classList.add("active");
+    }
+
+    function share() {
+      const text = "Daily English - 나이에 맞는 영어 문장을 매일 받아보세요! 📖";
+      if (navigator.share) {
+        navigator.share({ title: "Daily English", text });
+      } else {
+        navigator.clipboard.writeText(text);
+        showStatus("✅ 공유 텍스트 복사됨", "success");
+      }
+    }
+
+    window.addEventListener("load", () => {
+      if ("serviceWorker" in navigator) {
+        try {
+          navigator.serviceWorker.register("sw.js");
+        } catch (e) {
+          console.warn("Service Worker 등록 실패:", e);
+        }
+      }
+      load();
+      setInterval(updateCountdown, 1000);
+    });
+  </script>
+</body>
+</html>
