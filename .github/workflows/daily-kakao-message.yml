@@ -1,0 +1,32 @@
+name: Daily Kakao English Message
+
+on:
+  schedule:
+    # 매일 23:00 UTC = 08:00 KST (다음날)
+    - cron: "0 23 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kakao
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Send today's message
+        env:
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
+          ADMIN_GH_TOKEN: ${{ secrets.ADMIN_GH_TOKEN }}
+        run: node send-daily-message.mjs
