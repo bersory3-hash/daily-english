@@ -56,9 +56,18 @@ async function refreshAccessToken() {
   return data;
 }
 
+function buildListenUrl(englishText) {
+  return `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encodeURIComponent(
+    englishText
+  )}`;
+}
+
 function buildMessageText(dayEntry) {
   const lines = dayEntry.sentences.map(
-    (s, i) => `${i + 1}. ${s.english}\n   ${s.korean}`
+    (s, i) =>
+      `${i + 1}. ${s.english}\n   [${s.pron}]\n   ${s.korean}\n   🔊 ${buildListenUrl(
+        s.english
+      )}`
   );
   return [
     `🧸 오늘의 3세 영어 3문장 (${dayEntry.theme})`,
