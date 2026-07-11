@@ -1,20 +1,27 @@
 // 매일 아침, 3세 아이용 영어 3문장을 카카오톡 '나에게 보내기'로 전송합니다.
+// 받는 사람을 여러 명 등록하면(각자 본인 계정으로 인증한 refresh_token), 등록된 모두에게
+// 각자의 카카오톡으로 같은 문장이 전송됩니다.
 // 필요 환경변수:
-//   KAKAO_REST_API_KEY   - 카카오 개발자 앱의 REST API 키
-//   KAKAO_REFRESH_TOKEN  - 최초 1회 인증(get-kakao-token.mjs)으로 발급받은 refresh_token
-//   ADMIN_GH_TOKEN        - (선택) refresh_token이 회전될 때 GitHub Secret을 자동 갱신하기 위한 PAT (repo scope)
-//   GITHUB_REPOSITORY     - GitHub Actions가 자동으로 채워줌 ("owner/repo")
+//   KAKAO_REST_API_KEY     - 카카오 개발자 앱의 REST API 키
+//   KAKAO_REFRESH_TOKEN    - 최초 1회 인증(get-kakao-token.mjs)으로 발급받은 refresh_token (첫 번째 받는 사람)
+//   KAKAO_REFRESH_TOKEN_2, KAKAO_REFRESH_TOKEN_3, ... - 추가로 받을 사람들의 refresh_token
+//   ADMIN_GH_TOKEN          - (선택) refresh_token이 회전될 때 GitHub Secret을 자동 갱신하기 위한 PAT (repo scope)
+//   GITHUB_REPOSITORY       - GitHub Actions가 자동으로 채워줌 ("owner/repo")
 
 import sentences from "./sentences.mjs";
 
 const REST_API_KEY = process.env.KAKAO_REST_API_KEY;
-const REFRESH_TOKEN = process.env.KAKAO_REFRESH_TOKEN;
 const ADMIN_GH_TOKEN = process.env.ADMIN_GH_TOKEN;
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
 const LINK_URL =
   process.env.KAKAO_LINK_URL || "https://github.com/bersory3-hash/daily-english";
 
-if (!REST_API_KEY || !REFRESH_TOKEN) {
+const RECIPIENTS = Object.keys(process.env)
+  .filter((key) => /^KAKAO_REFRESH_TOKEN(_\d+)?$/.test(key) && process.env[key])
+  .sort()
+  .map((secretName) => ({ secretName, refreshToken: process.env[secretName] }));
+
+if (!REST_API_KEY || RECIPIENTS.length === 0) {
   console.error(
     "KAKAO_REST_API_KEY / KAKAO_REFRESH_TOKEN 환경변수가 필요합니다. README의 설정 가이드를 참고하세요."
   );
@@ -38,11 +45,11 @@ function getTodayIndexKST() {
   return dayOfYear % sentences.length;
 }
 
-async function refreshAccessToken() {
+async function refreshAccessToken(refreshToken) {
   const params = new URLSearchParams({
     grant_type: "refresh_token",
     client_id: REST_API_KEY,
-    refresh_token: REFRESH_TOKEN,
+    refresh_token: refreshToken,
   });
   const res = await fetch("https://kauth.kakao.com/oauth/token", {
     method: "POST",
@@ -173,15 +180,29 @@ async function updateGithubSecret(secretName, secretValue) {
 async function main() {
   const idx = getTodayIndexKST();
   const dayEntry = sentences[idx];
-  console.log(`오늘 문장 세트(#${idx}, ${dayEntry.theme})를 전송합니다.`);
-
-  const tokenData = await refreshAccessToken();
   const text = buildMessageText(dayEntry);
-  await sendKakaoMessage(tokenData.access_token, text);
-  console.log("✅ 카카오톡 '나에게 보내기' 메시지를 성공적으로 보냈습니다.");
+  console.log(
+    `오늘 문장 세트(#${idx}, ${dayEntry.theme})를 ${RECIPIENTS.length}명에게 전송합니다.`
+  );
 
-  if (tokenData.refresh_token) {
-    await updateGithubSecret("KAKAO_REFRESH_TOKEN", tokenData.refresh_token);
+  let hadError = false;
+  for (const { secretName, refreshToken } of RECIPIENTS) {
+    try {
+      const tokenData = await refreshAccessToken(refreshToken);
+      await sendKakaoMessage(tokenData.access_token, text);
+      console.log(`✅ [${secretName}] 카카오톡 메시지를 성공적으로 보냈습니다.`);
+
+      if (tokenData.refresh_token) {
+        await updateGithubSecret(secretName, tokenData.refresh_token);
+      }
+    } catch (err) {
+      hadError = true;
+      console.error(`❌ [${secretName}] 전송 실패:`, err.message || err);
+    }
+  }
+
+  if (hadError) {
+    process.exit(1);
   }
 }
 
