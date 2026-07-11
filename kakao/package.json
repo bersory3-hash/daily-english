@@ -1,0 +1,15 @@
+{
+  "name": "daily-english-kakao-bot",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "auth": "node get-kakao-token.mjs",
+    "send": "node send-daily-message.mjs"
+  },
+  "dependencies": {
+    "libsodium-wrappers": "^0.7.13"
+  }
+}
